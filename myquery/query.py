@@ -18,6 +18,7 @@ class Query(object):
     def _build_sql(self):
         raise NotImplementedError('not implemented sql building');
 
+
 class QueryWhereMixIn(object):
     def where(self, clause, *args, **kargs):
         #escape literal args
