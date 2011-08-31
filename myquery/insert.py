@@ -14,7 +14,6 @@ class InsertQuery(Query):
         self.target(table)
 
     def execute(self):
-        self.target(table)
         sql = self._build_sql()
         return self._cursor.execute(sql)
 
