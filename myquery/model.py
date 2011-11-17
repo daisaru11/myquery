@@ -1,13 +1,9 @@
 # vim:fileencoding=utf-8
-from MySQLdb import MySQLError
 from select import SelectQuery
 from insert import InsertQuery
 from update import UpdateQuery
 from delete import DeleteQuery
 import datetime
-
-class ModelProcessingError(Exception):
-    pass
 
 class Model(object):
     _instances = {}
@@ -46,14 +42,4 @@ class Model(object):
     def insert_id(self):
         return self._dbconn.insert_id()
 
-
-#decorator
-def check_mysql_exception(func):
-    def _(*args, **kargs):
-        try:
-            return func(*args, **kargs)
-        except MySQLError, e:
-            m = 'Raise MySQL exception:%s' % repr(e)
-            raise ModelProcessingError(m)
-    return _
 
