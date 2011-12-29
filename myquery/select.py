@@ -7,6 +7,7 @@ class SelectQuery(Query, QueryWhereMixIn, QueryJoinMixIn):
     def __init__(self, dbconn, *tables):
         Query.__init__(self, dbconn)
 
+        self._options = None
         self._cols = None
         self._target = None
         self._where = None
@@ -41,7 +42,12 @@ class SelectQuery(Query, QueryWhereMixIn, QueryJoinMixIn):
             self.select('*')
 
         #base
-        str_buf = ['SELECT', self._cols.build(), 'FROM', self._target.build()]
+        str_buf = ['SELECT']
+        if self._options is not None:
+            str_buf.append(self._options.build())
+        str_buf.append(self._cols.build())
+        str_buf.append('FROM')
+        str_buf.append(self._target.build())
         #join
         if self._join is not None:
             str_buf.append(self._join.build())
@@ -60,6 +66,10 @@ class SelectQuery(Query, QueryWhereMixIn, QueryJoinMixIn):
             str_buf.append(self._limit.build())
 
         return ' '.join(str_buf) + ';'
+
+    def options(self, *options):
+        self._options = Options(options)
+        return self;
 
     def select(self, *cols):
         self._cols = Columns(cols)

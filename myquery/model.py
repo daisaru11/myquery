@@ -1,59 +1,53 @@
 # vim:fileencoding=utf-8
-from MySQLdb import MySQLError
+import MySQLdb
+from MySQLdb.cursors import DictCursor
 from select import SelectQuery
 from insert import InsertQuery
 from update import UpdateQuery
 from delete import DeleteQuery
-import datetime
 
-class ModelProcessingError(Exception):
-    pass
 
 class Model(object):
-    _instances = {}
-    _dbconn = None
-    _current = None
+    dbconn = None
+    _instances = dict()
     def __init__(self):
         pass
 
     @classmethod
     def getInstance(cls):
-        return cls._instances.get(cls.__name__) or\
-            cls._instances.setdefault(cls.__name__, cls())
+        if cls is Model:
+            raise NotImplementedError, 'Base Model class instance should not be generated.'
+        return Model._instances.get(hash(cls)) or\
+            Model._instances.setdefault(hash(cls), cls())
 
     @staticmethod
     def setDbConn(dbconn):
-        Model._dbconn = dbconn
-
-    @property
-    def current(self):
-        if self._current is None:
-            self._current = datetime.datetime.now()
-        return self._current
+        Model.dbconn = dbconn
 
     def selectQuery(self, table):
-        return SelectQuery(self._dbconn, table)
+        return SelectQuery(self.dbconn, table)
 
     def insertQuery(self, table):
-        return InsertQuery(self._dbconn, table)
+        return InsertQuery(self.dbconn, table)
 
     def deleteQuery(self, table):
-        return DeleteQuery(self._dbconn, table)
+        return DeleteQuery(self.dbconn, table)
 
     def updateQuery(self, table):
-        return UpdateQuery(self._dbconn, table)
+        return UpdateQuery(self.dbconn, table)
 
-    def insert_id(self):
-        return self._dbconn.insert_id()
+    @staticmethod
+    def execute(sql):
+        cursor = Model.dbconn.cursor(DictCursor)
+        cursor.execute(sql)
+        return cursor
 
+    @staticmethod
+    def commit():
+        return Model.dbconn.commit()
 
-#decorator
-def check_mysql_exception(func):
-    def _(*args, **kargs):
-        try:
-            return func(*args, **kargs)
-        except MySQLError, e:
-            m = 'Raise MySQL exception:%s' % repr(e)
-            raise ModelProcessingError(m)
-    return _
+    @staticmethod
+    def rollback():
+        return Model.dbconn.rollback()
+
 

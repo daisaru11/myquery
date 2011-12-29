@@ -15,6 +15,19 @@ class Columns(QueryPart, list):
         return '( ' + ', '.join(self) + ' )'
 
 
-class Values(QueryPart, list):
-    def build(self):
-        return 'VALUES ( ' + ', '.join(self) + ' )'
+class Values(QueryPart, dict):
+    def build(self, cols):
+        try:
+            return 'VALUES ( ' + ', '.join( self[c] for c in cols ) + ' )'
+        except KeyError:
+            raise SQLBuildingError('a column value is not specified')
+            return None
+
+class ValuesList(QueryPart, list):
+    def build(self, cols):
+        try:
+            return 'VALUES ' + ', '.join( 
+                '( ' + ', '.join( values[c] for c in cols ) + ' )' for values in self )
+        except KeyError:
+            raise SQLBuildingError('a column value is not specified')
+            return None
