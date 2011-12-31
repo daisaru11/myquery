@@ -32,7 +32,7 @@ class QueryWhereMixIn(object):
             return self
 
         #create condition list
-        self._where.append( And(clause, *args) )
+        self._where.append( And( Condition(clause, *args)) )
         return self
 
     def orwhere(self, clause, *args, **kargs):
@@ -47,7 +47,22 @@ class QueryWhereMixIn(object):
             return self
 
         #create condition list
-        self._where.append( Or(clause, *args) )
+        self._where.append( Or( Condition(clause, *args)) )
+        return self
+
+    def where_in(self, col, vals, **kargs):
+        #escape literal args
+        if kargs.get('escape') is not False:
+            vals = [self._dbconn.literal(val) for val in vals]
+
+        #if there is no condition, create a single condition and return
+        if self._where is None:
+            self._where = Where()
+            self._where.append( InCondition(col, vals) )
+            return self
+
+        #create condition list
+        self._where.append( And(InCondition(col, vals)) )
         return self
 
 
