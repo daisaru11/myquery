@@ -82,7 +82,7 @@ class Limit(QueryPart):
         if self.offset is None:
             return 'LIMIT %d' % self.limit
         else:
-            return 'LIMIT %d, %d' % (self.limit, self.offset)
+            return 'LIMIT %d, %d' % (self.offset, self.limit)
 
 class Target(QueryPart):
     def __init__(self, table):
