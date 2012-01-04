@@ -21,13 +21,24 @@ class Condition(QueryPart):
         else:
             return self.clause % self.args
 
-class And(Condition):
+class InCondition(QueryPart):
+    def __init__(self, col, vals):
+        self.col = col
+        self.vals = vals
     def build(self):
-        return 'AND ' + Condition.build(self)
+        return self.col + ' IN (' + ', '.join(self.vals) + ')'
 
-class Or(Condition):
+class And(QueryPart):
+    def __init__(self, cond):
+        self.cond = cond
     def build(self):
-        return 'OR ' + Condition.build(self)
+        return 'AND ' + self.cond.build()
+
+class Or(QueryPart):
+    def __init__(self, cond):
+        self.cond = cond
+    def build(self):
+        return 'OR ' + self.cond.build()
 
 class Join(QueryPart):
     def __init__(self, table, jointype, clause, *args):
@@ -71,7 +82,7 @@ class Limit(QueryPart):
         if self.offset is None:
             return 'LIMIT %d' % self.limit
         else:
-            return 'LIMIT %d, %d' % (self.limit, self.offset)
+            return 'LIMIT %d, %d' % (self.offset, self.limit)
 
 class Target(QueryPart):
     def __init__(self, table):

@@ -7,6 +7,10 @@ class Columns(QueryPart, list):
     def build(self):
         return ', '.join(self)
 
+class Options(QueryPart, list):
+    def build(self):
+        return ' '.join(self)
+
 class From(QueryPart):
     def __init__(self, tables):
         self.tables = tables
