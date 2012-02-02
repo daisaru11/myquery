@@ -1,0 +1,41 @@
+*** Example ***
+
+#create connection
+import MySQLdb
+dbconn = MySQLdb.connect( ... )
+
+###
+#  Query Building
+###
+
+#Select
+query = SelectQuery(dbconn, 'blog')
+query.select('title', 'content', 'created')
+query.where('author_id = %s', 5)
+query.orderby('created', 'desc')
+result = query.get_all()  # excuted "SELECT title, content, created FROM blog WHERE author_id = '5' ORDER BY created DESC"
+
+#Insert
+query = InsertQuery(dbconn, 'blog')
+query.set('title', 'Hello!')
+query.set('content', 'Hello World!')
+query.set('author_id', 5)
+query.set('created', 'NOW()', escape=False)
+result = query.execute() # excuted "INSERT INTO blog (title, content, author_id, created) VALUES ('Hello!', 'Hello World!', '5', NOW())"
+
+
+
+###
+#  Using As a Model
+###
+
+Model.setDbconn(dbconn)
+class UserModel(Model):
+	def getById(self, id):
+		query = self.selectQuery('user')
+		query.where('id = %s', id)
+		return query.get_one()
+
+usermodel = UserModel.getInstance()
+user = usermodel.getById(3)
+
