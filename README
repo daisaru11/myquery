@@ -1,6 +1,7 @@
-*** Example ***
+### Examples ###
 
-#create connection
+##
+# create connection
 import MySQLdb
 dbconn = MySQLdb.connect( ... )
 
@@ -8,31 +9,37 @@ dbconn = MySQLdb.connect( ... )
 #  Query Building
 ###
 
-#Select
-query = SelectQuery(dbconn, 'blog')
+## Select
+#
+# excute "SELECT title, content, created FROM blog WHERE author_id = '5' ORDER BY created DESC"
+query = SelectQuery(dbconn, 'blog') # create QueryObject
 query.select('title', 'content', 'created')
 query.where('author_id = %s', 5)
 query.orderby('created', 'desc')
-result = query.get_all()  # excuted "SELECT title, content, created FROM blog WHERE author_id = '5' ORDER BY created DESC"
+result = query.get_all() # get results as dict
 
-#Insert
+## Insert
+# 
+# excute "INSERT INTO blog (title, content, author_id, created) VALUES ('Hello!', 'Hello World!', '5', NOW())"
 query = InsertQuery(dbconn, 'blog')
 query.set('title', 'Hello!')
 query.set('content', 'Hello World!')
 query.set('author_id', 5)
 query.set('created', 'NOW()', escape=False)
-result = query.execute() # excuted "INSERT INTO blog (title, content, author_id, created) VALUES ('Hello!', 'Hello World!', '5', NOW())"
-
+result = query.execute()
 
 
 ###
 #  Using As a Model
 ###
 
+# set connection
 Model.setDbconn(dbconn)
+
+# define model
 class UserModel(Model):
 	def getById(self, id):
-		query = self.selectQuery('user')
+		query = self.selectQuery('user') # get QueryObject
 		query.where('id = %s', id)
 		return query.get_one()
 
